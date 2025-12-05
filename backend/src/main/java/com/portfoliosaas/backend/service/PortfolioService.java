@@ -53,6 +53,12 @@ public class PortfolioService {
         return mapToPortfolioResponse(savedPortfolio);
     }
 
+    public List<PortfolioResponse> getAllPortfolios() {
+        return portfolioRepository.findAll().stream()
+                .map(this::mapToPortfolioResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<PortfolioResponse> getAllPortfoliosByUserId(String userId) {
         return portfolioRepository.findByUserId(userId).stream()
                 .map(this::mapToPortfolioResponse)
