@@ -5,63 +5,68 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-
-}
-
-// NextAuth required models
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String    @unique
-  emailVerified  DateTime?
-  image          String?
-  githubUsername String?   @unique
-  githubId       String?   @unique
-  
-  accounts       Account[]
-  sessions       Session[]
-  
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  
-  @@index([email])
-  @@index([githubId])
+  id             String      @id @db.VarChar(36)
+  createdAt      DateTime?   @map("created_at") @db.Timestamp(6)
+  email          String      @unique(map: "uk6dotkott2kjsp8vw4d0m25fb7") @db.VarChar(255)
+  emailVerified  DateTime?   @map("email_verified") @db.Timestamp(6)
+  githubId       String?     @unique(map: "ukg9s8emobrgjmob2ty2va0l354") @map("github_id") @db.VarChar(255)
+  githubUsername String?     @unique(map: "uk6c5gd6effxulikrmxqe1r3bbx") @map("github_username") @db.VarChar(255)
+  image          String?     @db.VarChar(500)
+  name           String?     @db.VarChar(255)
+  updatedAt      DateTime?   @updatedAt @map("updated_at") @db.Timestamp(6)
+  portfolios     Portfolio[] @relation("UserPortfolios")
+
+  @@map("users")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model Portfolio {
+  id              String    @id @db.VarChar(36)
+  bio             String?
+  createdAt       DateTime? @map("created_at") @db.Timestamp(6)
+  data            Json?
+  portfolioNumber Int       @map("portfolio_number")
+  published       Boolean
+  theme           String?   @db.VarChar(50)
+  title           String    @db.VarChar(255)
+  updatedAt       DateTime? @map("updated_at") @db.Timestamp(6)
+  userId          String    @map("user_id") @db.VarChar(255)
+  viewCount       Int?      @map("view_count")
+  user            User      @relation("UserPortfolios", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk9xt36kgm9cxsf79r2me0d9f6u")
+  projects        Project[]
 
-  @@unique([identifier, token])
+  @@unique([userId, portfolioNumber], map: "uk2sk7u58dseu287ljh0jayyl9e")
+  @@map("portfolios")
+}
+
+model Project {
+  id                 String               @id @db.VarChar(36)
+  createdAt          DateTime?            @map("created_at") @db.Timestamp(6)
+  description        String?
+  displayOrder       Int?                 @map("display_order")
+  featured           Boolean
+  forks              Int?
+  githubUrl          String?              @map("github_url") @db.VarChar(500)
+  image              String?              @db.VarChar(500)
+  language           String?              @db.VarChar(100)
+  liveUrl            String?              @map("live_url") @db.VarChar(500)
+  portfolioId        String               @map("portfolio_id") @db.VarChar(255)
+  stars              Int?
+  title              String               @db.VarChar(255)
+  updatedAt          DateTime?            @map("updated_at") @db.Timestamp(6)
+  project_tech_stack project_tech_stack[] @ignore
+  portfolio          Portfolio            @relation(fields: [portfolioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkbcgkgn5opfcu5tt4lf4dih3ft")
+
+  @@map("projects")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model project_tech_stack {
+  project_id String  @db.VarChar(36)
+  tech_stack String? @db.VarChar(255)
+  projects   Project @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk7w262lv0btlw1x6rm97f7o69o")
+
+  @@ignore
 }
