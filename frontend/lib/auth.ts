@@ -29,24 +29,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async jwt({ token, user, profile }) {
       if (user) {
         token.id = user.id;
-        // Check if user has github fields from profile or database lookup if needed
-        // Since we are using an adapter, user might already have these if they were fetched
       }
-      
-      // We can also fetch fresh data from DB if needed, but for now let's rely on what we have
-      // or fetch the user from DB to get custom fields
-       if (token.sub) {
-         const dbUser = await prisma.user.findUnique({
-           where: { id: token.sub },
-           select: { githubUsername: true, githubId: true },
-         });
-         
-         if (dbUser) {
-           token.githubUsername = dbUser.githubUsername;
-           token.githubId = dbUser.githubId;
-         }
-       }
-      
+
+      if (token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { githubUsername: true, githubId: true },
+        });
+
+        if (dbUser) {
+          token.githubUsername = dbUser.githubUsername;
+          token.githubId = dbUser.githubId;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {

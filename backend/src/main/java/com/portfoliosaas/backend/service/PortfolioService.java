@@ -30,8 +30,9 @@ public class PortfolioService {
     @Transactional
     public PortfolioResponse createPortfolio(CreatePortfolioRequest request) {
         // Verify user exists
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (!userRepository.existsById(request.getUserId())) {
+            throw new ResourceNotFoundException("User not found");
+        }
 
         // Get next portfolio number for this user
         Portfolio lastPortfolio = portfolioRepository.findLastPortfolioByUserId(request.getUserId())
@@ -147,8 +148,7 @@ public class PortfolioService {
                     user.getId(),
                     user.getName(),
                     user.getGithubUsername(),
-                    user.getImage()
-            );
+                    user.getImage());
         }
 
         return new PortfolioResponse(
@@ -164,8 +164,7 @@ public class PortfolioService {
                 projects,
                 userInfo,
                 portfolio.getCreatedAt(),
-                portfolio.getUpdatedAt()
-        );
+                portfolio.getUpdatedAt());
     }
 
     private ProjectResponse mapToProjectResponse(Project project) {
@@ -183,7 +182,6 @@ public class PortfolioService {
                 project.getStars(),
                 project.getForks(),
                 project.getLanguage(),
-                project.getCreatedAt()
-        );
+                project.getCreatedAt());
     }
 }

@@ -37,20 +37,19 @@ public class GithubService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<List> response = restTemplate.exchange(
+            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     entity,
-                    List.class
-            );
+                    new org.springframework.core.ParameterizedTypeReference<List<Map<String, Object>>>() {
+                    });
 
             List<Map<String, Object>> repos = response.getBody();
 
             // Transform to simpler format
             List<Map<String, Object>> simplifiedRepos = new ArrayList<>();
             if (repos != null) {
-                for (Object repo : repos) {
-                    Map<String, Object> repoMap = (Map<String, Object>) repo;
+                for (Map<String, Object> repoMap : repos) {
 
                     Map<String, Object> simplified = new HashMap<>();
                     simplified.put("id", repoMap.get("id"));
@@ -75,7 +74,8 @@ public class GithubService {
     }
 
     /**
-     * Reload projects from GitHub - deletes existing GitHub-sourced projects and fetches fresh
+     * Reload projects from GitHub - deletes existing GitHub-sourced projects and
+     * fetches fresh
      */
     @Transactional
     public Map<String, Object> reloadPortfolioProjects(String portfolioId, String authToken) {
@@ -115,11 +115,11 @@ public class GithubService {
             project.setDescription((String) repo.get("description"));
 
             // Extract tech stack from topics
+            @SuppressWarnings("unchecked")
             List<String> topics = (List<String>) repo.get("topics");
             if (topics != null && !topics.isEmpty()) {
-                project.setTechStack(topics);  // <-- correct
+                project.setTechStack(topics); // <-- correct
             }
-
 
             project.setGithubUrl((String) repo.get("html_url"));
             project.setLiveUrl((String) repo.get("homepage"));
