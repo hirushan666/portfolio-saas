@@ -1,29 +1,16 @@
 // lib/auth.ts
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
+import authConfig from "@/auth.config";
 
-const prisma = new PrismaClient();
-
-export const { auth, handlers } = NextAuth({
+export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
 
-  providers: [
-    GitHub({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-      authorization: {
-        params: {
-          scope: "read:user user:email public_repo",
-        },
-      },
-    }),
-  ],
-
-  callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "github" && profile) {
+  ...authConfig,
+  events: {
+    async linkAccount({ user, account, profile }) {
+      if (account.provider === "github" && profile) {
         await prisma.user.update({
           where: { id: user.id },
           data: {
@@ -32,36 +19,43 @@ export const { auth, handlers } = NextAuth({
           },
         });
       }
-      return true;
     },
-
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { githubUsername: true, githubId: true },
-        });
-
-        if (dbUser) {
-          session.user.githubUsername = dbUser.githubUsername;
-          session.user.githubId = dbUser.githubId;
-        }
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user, profile }) {
+      if (user) {
+        token.id = user.id;
+        // Check if user has github fields from profile or database lookup if needed
+        // Since we are using an adapter, user might already have these if they were fetched
+      }
+      
+      // We can also fetch fresh data from DB if needed, but for now let's rely on what we have
+      // or fetch the user from DB to get custom fields
+       if (token.sub) {
+         const dbUser = await prisma.user.findUnique({
+           where: { id: token.sub },
+           select: { githubUsername: true, githubId: true },
+         });
+         
+         if (dbUser) {
+           token.githubUsername = dbUser.githubUsername;
+           token.githubId = dbUser.githubId;
+         }
+       }
+      
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.sub!;
+        session.user.githubUsername = token.githubUsername as string;
+        session.user.githubId = token.githubId as string;
       }
       return session;
     },
   },
-
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-
-  session: {
-    strategy: "database",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-
-  debug: process.env.NODE_ENV === "development",
 });
