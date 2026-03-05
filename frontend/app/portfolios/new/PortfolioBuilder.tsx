@@ -7,8 +7,8 @@ import { User } from 'next-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { BasicInfoStep } from '@/components/portfolio-builder/BasicInfoStep';
-// import { ProjectsStep } from '@/components/portfolio-builder/ProjectsStep';
-// import { ThemeStep } from '@/components/portfolio-builder/ThemeStep';
+import { ProjectsStep } from '@/components/portfolio-builder/ProjectsStep';
+import { ThemeStep } from '@/components/portfolio-builder/ThemeStep';
 import { ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 
 export function PortfolioBuilder({ user }: { user: User }) {
@@ -40,13 +40,69 @@ export function PortfolioBuilder({ user }: { user: User }) {
   };
 
   const handleSubmit = async () => {
-    // TODO: Connect to backend for final creation
+    if (!user.id) return;
     setIsSubmitting(true);
-    // Simulate API call for now
-    setTimeout(() => {
+    
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+
+      const payload: any = {
+        userId: user.id,
+        title: state.title,
+        bio: state.bio,
+        theme: state.theme,
+        data: {
+          name: state.name,
+          avatarSource: state.avatarSource,
+        }
+      };
+
+      if (state.avatarSource === 'upload' && state.avatarUploadUrl) {
+        payload.avatarUrl = state.avatarUploadUrl;
+      }
+
+      const portfolioRes = await fetch(`${apiUrl}/portfolios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!portfolioRes.ok) throw new Error('Failed to create portfolio');
+      
+      const newPortfolio = await portfolioRes.json();
+
+      // 2. Add the Projects (if any)
+      if (state.projects.length > 0) {
+        await Promise.all(state.projects.map((project, index) => 
+          fetch(`${apiUrl}/projects`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              portfolioId: newPortfolio.id,
+              title: project.title,
+              description: project.description,
+              techStack: project.techStack,
+              githubUrl: project.githubUrl,
+              liveUrl: project.liveUrl,
+              stars: project.stars,
+              forks: project.forks,
+              language: project.language,
+              displayOrder: index,
+              featured: false
+            }),
+          })
+        ));
+      }
+
+      // 3. Success! Redirect to dashboard
+      router.push('/dashboard');
+      router.refresh(); // Force Next.js to re-fetch Server Component data
+
+    } catch (e) {
+      console.error('Submission error:', e);
       setIsSubmitting(false);
-      // router.push("/dashboard");
-    }, 1500);
+      alert('Failed to save portfolio. Check console for details.');
+    }
   };
 
   return (
@@ -86,16 +142,10 @@ export function PortfolioBuilder({ user }: { user: User }) {
             <BasicInfoStep state={state} updateState={updateState} user={user} />
           )}
           {step === 2 && (
-            <div className="text-center py-20 text-gray-500">
-              {/* <ProjectsStep state={state} updateState={updateState} user={user} /> */}
-              <p>Step 2: Projects (Coming Soon)</p>
-            </div>
+            <ProjectsStep state={state} updateState={updateState} user={user} />
           )}
           {step === 3 && (
-            <div className="text-center py-20 text-gray-500">
-              {/* <ThemeStep state={state} updateState={updateState} /> */}
-              <p>Step 3: Theme Selection (Coming Soon)</p>
-            </div>
+            <ThemeStep state={state} updateState={updateState} />
           )}
         </CardContent>
         <CardFooter className="bg-gray-50 border-t border-gray-100 p-6 flex justify-between">

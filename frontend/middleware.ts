@@ -7,13 +7,22 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
+  const pathname = req.nextUrl.pathname;
+
+  // Portfolio view pages (/portfolios/[id]) should be public
+  // But /portfolios/new and /portfolios/[id]/edit should be protected
+  const isPublicPortfolioView =
+    pathname.startsWith("/portfolios/") &&
+    !pathname.endsWith("/new") &&
+    !pathname.endsWith("/edit");
+
   const isProtected =
-    req.nextUrl.pathname.startsWith("/dashboard") ||
-    req.nextUrl.pathname.startsWith("/portfolios");
+    pathname.startsWith("/dashboard") ||
+    (pathname.startsWith("/portfolios") && !isPublicPortfolioView);
 
   if (!isLoggedIn && isProtected) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
-    loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 

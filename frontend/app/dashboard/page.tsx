@@ -13,7 +13,7 @@ import { Portfolio } from "@/types";
 async function getUserPortfolios(userId: string): Promise<Portfolio[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/portfolios/user/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/portfolios?userId=${userId}`,
       { cache: "no-store" }
     );
     if (!res.ok) return [];

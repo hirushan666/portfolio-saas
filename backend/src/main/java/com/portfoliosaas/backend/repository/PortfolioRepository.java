@@ -1,6 +1,5 @@
 package com.portfoliosaas.backend.repository;
 
-
 import com.portfoliosaas.backend.model.Portfolio;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,22 +12,23 @@ import java.util.Optional;
 @Repository
 public interface PortfolioRepository extends JpaRepository<Portfolio, String> {
 
-    List<Portfolio> findByUserId(String userId);
+        List<Portfolio> findByUserId(String userId);
 
-    List<Portfolio> findByUserIdAndPublishedTrue(String userId);
+        Optional<Portfolio> findBySlug(String slug);
 
-    @Query("SELECT p FROM Portfolio p JOIN p.user u " +
-            "WHERE u.githubUsername = :username AND p.portfolioNumber = :number AND p.published = true")
-    Optional<Portfolio> findByUsernameAndNumber(
-            @Param("username") String username,
-            @Param("number") Integer number
-    );
+        List<Portfolio> findByUserIdAndPublishedTrue(String userId);
 
-    @Query("SELECT p FROM Portfolio p " +
-            "WHERE p.userId = :userId ORDER BY p.portfolioNumber DESC LIMIT 1")
-    Optional<Portfolio> findLastPortfolioByUserId(@Param("userId") String userId);
+        @Query("SELECT p FROM Portfolio p JOIN p.user u " +
+                        "WHERE u.githubUsername = :username AND p.portfolioNumber = :number AND p.published = true")
+        Optional<Portfolio> findByUsernameAndNumber(
+                        @Param("username") String username,
+                        @Param("number") Integer number);
 
-    boolean existsByUserIdAndPortfolioNumber(String userId, Integer portfolioNumber);
+        @Query("SELECT p FROM Portfolio p " +
+                        "WHERE p.userId = :userId ORDER BY p.portfolioNumber DESC LIMIT 1")
+        Optional<Portfolio> findLastPortfolioByUserId(@Param("userId") String userId);
 
-    long countByUserId(String userId);
+        boolean existsByUserIdAndPortfolioNumber(String userId, Integer portfolioNumber);
+
+        long countByUserId(String userId);
 }

@@ -26,12 +26,26 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, profile }) {
+    async jwt({ token, user, profile, account }) {
       if (user) {
         token.id = user.id;
       }
 
-      if (token.sub) {
+      // If this is a sign-in event with GitHub, update token and DB immediately (fixes missing data issue)
+      if (account?.provider === "github" && profile?.login && token.sub) {
+        token.githubUsername = (profile as any).login;
+        token.githubId = String((profile as any).id);
+
+        // Auto-heal the database just in case linkAccount didn't run previously
+        await prisma.user.update({
+          where: { id: token.sub },
+          data: {
+            githubUsername: token.githubUsername as string,
+            githubId: token.githubId as string,
+          },
+        });
+      } else if (token.sub) {
+        // Normal session refresh logic
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: { githubUsername: true, githubId: true },

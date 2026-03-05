@@ -1,6 +1,5 @@
 package com.portfoliosaas.backend.model;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Table(name = "portfolios",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "portfolio_number"}))
+@Table(name = "portfolios", uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "portfolio_number" }))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,6 +41,12 @@ public class Portfolio {
 
     @Column(nullable = false)
     private Boolean published = false;
+
+    @Column(unique = true, length = 100)
+    private String slug;
+
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
+    private String avatarUrl;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

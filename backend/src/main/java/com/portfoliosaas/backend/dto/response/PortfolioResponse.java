@@ -19,6 +19,8 @@ public class PortfolioResponse {
     private String bio;
     private String theme;
     private Boolean published;
+    private String slug;
+    private String avatarUrl;
     private Map<String, Object> data;
     private Integer viewCount;
     private List<ProjectResponse> projects;

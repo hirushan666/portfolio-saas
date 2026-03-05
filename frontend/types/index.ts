@@ -18,6 +18,8 @@ export interface Portfolio {
   bio: string | null;
   theme: string;
   published: boolean;
+  slug: string | null;
+  avatarUrl: string | null;
   data: PortfolioData | null;
   viewCount: number;
   projects: Project[];
@@ -32,6 +34,8 @@ export interface Portfolio {
 }
 
 export interface PortfolioData {
+  name?: string;
+  avatarSource?: "github" | "upload";
   skills?: string[];
   socialLinks?: {
     github?: string;

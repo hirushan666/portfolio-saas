@@ -10,4 +10,5 @@ public class UpdatePortfolioRequest {
     private String bio;
     private String theme;
     private Map<String, Object> data;
+    private String avatarUrl;
 }

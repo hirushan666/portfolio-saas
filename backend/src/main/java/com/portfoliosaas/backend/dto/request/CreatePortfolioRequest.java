@@ -18,5 +18,7 @@ public class CreatePortfolioRequest {
 
     private String theme = "modern";
 
+    private String avatarUrl;
+
     private Map<String, Object> data;
 }

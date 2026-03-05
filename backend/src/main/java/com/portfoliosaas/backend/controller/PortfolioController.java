@@ -44,6 +44,12 @@ public class PortfolioController {
         return ResponseEntity.ok(portfolio);
     }
 
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<PortfolioResponse> getPortfolioBySlug(@PathVariable String slug) {
+        PortfolioResponse portfolio = portfolioService.getPortfolioBySlug(slug);
+        return ResponseEntity.ok(portfolio);
+    }
+
     @GetMapping("/user/{username}/{number}")
     public ResponseEntity<PortfolioResponse> getPortfolioByUsernameAndNumber(
             @PathVariable String username,

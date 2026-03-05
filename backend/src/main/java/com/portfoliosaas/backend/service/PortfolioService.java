@@ -46,9 +46,14 @@ public class PortfolioService {
         portfolio.setTitle(request.getTitle());
         portfolio.setBio(request.getBio());
         portfolio.setTheme(request.getTheme());
+        portfolio.setAvatarUrl(request.getAvatarUrl());
         portfolio.setData(request.getData());
-        portfolio.setPublished(false);
+        portfolio.setPublished(true);
         portfolio.setViewCount(0);
+
+        // Generate a unique slug based on title or user
+        String baseSlug = generateBaseSlug(request.getTitle(), request.getUserId());
+        portfolio.setSlug(generateUniqueSlug(baseSlug));
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
         return mapToPortfolioResponse(savedPortfolio);
@@ -68,6 +73,12 @@ public class PortfolioService {
 
     public PortfolioResponse getPortfolioById(String id) {
         Portfolio portfolio = portfolioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Portfolio not found"));
+        return mapToPortfolioResponse(portfolio);
+    }
+
+    public PortfolioResponse getPortfolioBySlug(String slug) {
+        Portfolio portfolio = portfolioRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio not found"));
         return mapToPortfolioResponse(portfolio);
     }
@@ -100,6 +111,9 @@ public class PortfolioService {
         }
         if (request.getData() != null) {
             portfolio.setData(request.getData());
+        }
+        if (request.getAvatarUrl() != null) {
+            portfolio.setAvatarUrl(request.getAvatarUrl());
         }
 
         Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
@@ -159,6 +173,8 @@ public class PortfolioService {
                 portfolio.getBio(),
                 portfolio.getTheme(),
                 portfolio.getPublished(),
+                portfolio.getSlug(),
+                portfolio.getAvatarUrl(),
                 portfolio.getData(),
                 portfolio.getViewCount(),
                 projects,
@@ -183,5 +199,36 @@ public class PortfolioService {
                 project.getForks(),
                 project.getLanguage(),
                 project.getCreatedAt());
+    }
+
+    // --- Slug generation helpers ---
+
+    private String generateBaseSlug(String title, String userId) {
+        // Always fetch the user to get their GitHub username for namespacing
+        User user = userRepository.findById(userId).orElse(null);
+        String usernamePrefix = (user != null && user.getGithubUsername() != null)
+                ? user.getGithubUsername().toLowerCase().replaceAll("[^a-z0-9]+", "-")
+                : (user != null && user.getName() != null
+                        ? user.getName().toLowerCase().replaceAll("[^a-z0-9]+", "-")
+                        : "user");
+
+        if (title != null && !title.trim().isEmpty()) {
+            String titleSlug = title.toLowerCase()
+                    .replaceAll("[^a-z0-9]+", "-")
+                    .replaceAll("(^-|-$)", "");
+            return usernamePrefix + "-" + titleSlug;
+        }
+
+        return usernamePrefix + "-portfolio";
+    }
+
+    private String generateUniqueSlug(String baseSlug) {
+        String slug = baseSlug;
+        int counter = 1;
+        while (portfolioRepository.findBySlug(slug).isPresent()) {
+            slug = baseSlug + "-" + counter;
+            counter++;
+        }
+        return slug;
     }
 }

@@ -15,10 +15,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/health").permitAll()   // MAKE /health PUBLIC
-                        .anyRequest().permitAll()                // make all endpoints public (for dev)
+                        .requestMatchers("/health").permitAll() // MAKE /health PUBLIC
+                        .anyRequest().permitAll() // make all endpoints public (for dev)
                 )
-                .formLogin(form -> form.disable());           // disable login page
+                .formLogin(form -> form.disable()); // disable login page
 
         return http.build();
     }
