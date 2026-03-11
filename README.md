@@ -34,7 +34,7 @@ A full-stack SaaS platform where developers sign in with GitHub, import their re
 ████████████████████████████████████████████████████████████████
 -->
 
-> 🎥 **Add a demo video/GIF here** — Save as `docs/demo.gif` or embed a YouTube link
+> ![Demo](./docs/Demo.gif)
 
 </div>
 
