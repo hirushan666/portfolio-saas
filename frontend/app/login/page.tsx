@@ -21,7 +21,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Welcome to Portfolio SaaS
+            Welcome to DevFolio
           </CardTitle>
           <CardDescription className="text-center">
             Create stunning developer portfolios in minutes

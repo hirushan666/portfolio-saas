@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio SaaS - Create Your Developer Portfolio",
+  title: "DevFolio — Build Your Developer Portfolio",
   description:
     "Build stunning developer portfolios in minutes with GitHub integration",
 };

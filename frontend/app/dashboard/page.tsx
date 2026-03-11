@@ -43,7 +43,7 @@ export default async function DashboardPage() {
             <Link href="/dashboard" className="flex items-center gap-2">
               <Code className="h-6 w-6 text-indigo-600" />
               <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Portfolio SaaS
+                DevFolio
               </span>
             </Link>
 

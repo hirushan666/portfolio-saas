@@ -13,7 +13,7 @@ export default function HomePage() {
             <div className="flex items-center space-x-2">
               <Code className="h-6 w-6 text-indigo-600" />
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Portfolio SaaS
+                DevFolio
               </h1>
             </div>
             <div className="flex gap-4">
@@ -61,7 +61,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">Why Choose Portfolio SaaS?</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">Why Choose DevFolio?</h2>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
@@ -100,7 +100,7 @@ export default function HomePage() {
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl mb-8 text-blue-100">
-            Join developers showcasing their work with Portfolio SaaS
+            Join developers showcasing their work with DevFolio
           </p>
           <Button size="lg" variant="secondary" asChild>
             <Link href="/login">
@@ -115,7 +115,7 @@ export default function HomePage() {
       <footer className="border-t bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600">
-            <p>&copy; 2024 Portfolio SaaS. Built with Next.js & Spring Boot.</p>
+            <p>&copy; 2025 DevFolio. Built with Next.js & Spring Boot.</p>
           </div>
         </div>
       </footer>

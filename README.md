@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 Portfolio SaaS
+# 🚀 DevFolio
 
 ### Build Stunning Developer Portfolios in Minutes
 
